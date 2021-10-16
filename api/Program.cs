@@ -1,5 +1,8 @@
 using contracts;
+using GreenPipes;
 using MassTransit;
+using masstransit_instrumentation;
+using masstransit_instrumentation.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +29,10 @@ namespace api
                         services.AddMassTransit(x =>
                             {
                                 x.SetKebabCaseEndpointNameFormatter();
-                                x.UsingRabbitMq();
+                                x.UsingRabbitMq((context, cfg) =>
+                                {
+                                    cfg.UsePublishFilter(typeof(PublishActivityFilter<>), context);
+                                });
                                 x.AddRequestClient<GreetingRequest>();
                             })
                             .AddMassTransitHostedService();
@@ -34,6 +40,7 @@ namespace api
                         services.AddOpenTelemetryTracing(x => x
                             .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("api"))
                             .AddAspNetCoreInstrumentation()
+                            .AddSource(MassTransitInstrumentationActivitySource.ActivitySourceName)
                             .AddJaegerExporter());
                     });
                     webBuilder.Configure(builder =>

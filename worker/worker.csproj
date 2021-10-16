@@ -16,5 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\contracts\contracts.csproj" />
+    <ProjectReference Include="..\masstransit-instrumentation\masstransit-instrumentation.csproj" />
   </ItemGroup>
 </Project>
