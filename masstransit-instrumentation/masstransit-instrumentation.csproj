@@ -7,6 +7,9 @@
 
     <ItemGroup>
       <PackageReference Include="MassTransit" Version="7.2.4-develop.272" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
+      <PackageReference Include="OpenTelemetry.Api" Version="1.2.0-beta1" />
+      <PackageReference Include="System.Reactive.Core" Version="5.0.0" />
     </ItemGroup>
 
 </Project>

@@ -1,6 +1,5 @@
 using MassTransit;
 using masstransit_instrumentation;
-using masstransit_instrumentation.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Resources;
@@ -24,18 +23,20 @@ namespace worker
                             x.SetKebabCaseEndpointNameFormatter();
                             x.UsingRabbitMq((context, cfg) =>
                             {
-                                cfg.UseSendFilter(typeof(SendActivityFilter<>), context);
-                                cfg.UseConsumeFilter(typeof(ConsumeActivityFilter<>), context);
+                                //cfg.UseSendFilter(typeof(SendActivityFilter<>), context);
+                                //cfg.UseConsumeFilter(typeof(ConsumeActivityFilter<>), context);
 
                                 cfg.ConfigureEndpoints(context);
                             });
                             x.AddConsumer<GreetingConsumer>();
                         })
-                        .AddMassTransitHostedService();
+                        .AddMassTransitHostedService()
+                        .AddHostedService<MassTransitDiagnosticsHostedService>();
 
                     services.AddOpenTelemetryTracing(x => x
                         .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("worker"))
-                        .AddSource(MassTransitInstrumentationActivitySource.ActivitySourceName)
+                        //.AddMassTransitSource
+                        .AddMassTransitLegacySource()
                         .AddJaegerExporter());
                 });
     }

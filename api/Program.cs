@@ -1,8 +1,6 @@
 using contracts;
-using GreenPipes;
 using MassTransit;
 using masstransit_instrumentation;
-using masstransit_instrumentation.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,16 +29,18 @@ namespace api
                                 x.SetKebabCaseEndpointNameFormatter();
                                 x.UsingRabbitMq((context, cfg) =>
                                 {
-                                    cfg.UsePublishFilter(typeof(PublishActivityFilter<>), context);
+                                    //cfg.UsePublishFilter(typeof(PublishActivityFilter<>), context);
                                 });
                                 x.AddRequestClient<GreetingRequest>();
                             })
-                            .AddMassTransitHostedService();
+                            .AddMassTransitHostedService()
+                            .AddHostedService<MassTransitDiagnosticsHostedService>();
 
                         services.AddOpenTelemetryTracing(x => x
                             .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("api"))
                             .AddAspNetCoreInstrumentation()
-                            .AddSource(MassTransitInstrumentationActivitySource.ActivitySourceName)
+                            //.AddMassTransitSource
+                            .AddMassTransitLegacySource()
                             .AddJaegerExporter());
                     });
                     webBuilder.Configure(builder =>
